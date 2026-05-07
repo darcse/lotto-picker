@@ -466,7 +466,7 @@
           <button id="history-second-button" class="button" type="button">역대 2등 번호</button>
         </div>
         <div class="actions">
-          <button id="fortune-button" class="button" type="button">오늘의 운세 🔮</button>
+          <button id="fortune-button" class="button" type="button">음향오행 🔮</button>
           <button id="birthday-button" class="button" type="button">생년월일 🎂</button>
         </div>
         <div id="birthday-panel" class="birthday-panel">
@@ -711,13 +711,19 @@
       }).join('');
     }
 
+    function hideBirthdayInput() {
+      birthdayPanel.classList.remove('open');
+    }
+
     function recommendByFrequency() {
+      hideBirthdayInput();
       const selected = pickWeighted(state.stats, 'frequency');
       modeLabel.textContent = '출현 횟수가 높은 번호에 더 높은 가중치를 적용했습니다.';
       animateRecommendation(selected, 'frequency');
     }
 
     function recommendByOverdue() {
+      hideBirthdayInput();
       const selected = pickWeighted(state.stats, 'overdue');
       modeLabel.textContent = '오랫동안 나오지 않은 번호에 더 높은 가중치를 적용했습니다.';
       animateRecommendation(selected, 'overdue');
@@ -735,6 +741,7 @@
     }
 
     function recommendHistoricalFirstPrize() {
+      hideBirthdayInput();
       const round = getRandomRound();
       const selected = getRoundNumbers(round).map((number) => ({ number }));
       modeLabel.textContent = '랜덤으로 선택한 역대 1등 당첨 번호입니다.';
@@ -745,6 +752,7 @@
     }
 
     function recommendHistoricalSecondPrize() {
+      hideBirthdayInput();
       const round = getRandomRound();
       const selected = [
         Number(round.drwtNo1),
@@ -794,6 +802,7 @@
     }
 
     function recommendFortune() {
+      hideBirthdayInput();
       const today = new Date();
       const month = today.getMonth() + 1;
       const day = today.getDate();
@@ -913,6 +922,7 @@
   </script>
 </body>
 </html>
+
 
 
 
