@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lotto Picker</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <script src="https://cdn.jsdelivr.net/npm/korean-lunar-calendar/dist/korean-lunar-calendar.min.js"></script>
   <style>
     :root {
       --color-primary: #0066cc;
@@ -183,9 +184,11 @@
 
     .saju-panel {
       display: none;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+      grid-template-columns: auto minmax(56px, 0.65fr) minmax(44px, 0.38fr) minmax(44px, 0.38fr) minmax(140px, 1.15fr) auto auto auto;
       gap: 8px;
-      margin-top: 12px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #e5e5ea;
     }
 
     .saju-panel.open {
@@ -197,9 +200,45 @@
       min-width: 0;
       border: 1px solid #d0d0d5;
       border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 14px;
+      padding: 8px 10px;
+      font-size: 13px;
       background: #ffffff;
+    }
+
+    .calendar-radio {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .calendar-radio input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .calendar-radio label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #f0f0f0;
+      color: #666666;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: transform 110ms ease, opacity 120ms ease;
+    }
+
+    .calendar-radio input:checked + label {
+      background: #6741d9;
+      color: #ffffff;
+    }
+
+    .calendar-radio label:active {
+      transform: scale(0.97);
     }
 
     .saju-panel .button {
@@ -208,6 +247,33 @@
       padding: 10px 18px;
       background: #e03131;
       border-radius: 12px;
+    }
+
+    .saju-mode-toggle {
+      display: flex;
+      gap: 8px;
+    }
+
+    .saju-mode-button {
+      border: 0;
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #f0f0f0;
+      color: #666666;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: transform 110ms ease, opacity 120ms ease;
+    }
+
+    .saju-mode-button.active {
+      background: #6741d9;
+      color: #ffffff;
+    }
+
+    .saju-mode-button:active {
+      transform: scale(0.97);
     }
 
     .result {
@@ -314,26 +380,62 @@
     }
 
     .prize-history.top {
+      background: linear-gradient(135deg, #fff3cd, #ffd700);
+      border: 2px solid #ffd700;
       color: #e03131;
-      font-weight: 600;
+      font-size: 18px;
+      font-weight: 700;
+      animation: pulse 1s ease-in-out 3;
     }
 
     .prize-history.third {
+      background: #fff8e1;
+      border: 2px solid #f5a623;
       color: #f5a623;
+      font-size: 16px;
       font-weight: 600;
     }
 
     .prize-history.prize {
       color: #0066cc;
+      font-size: 14px;
     }
 
     .prize-history.none {
-      color: #868e96;
+      color: #aaaaaa;
+      font-size: 13px;
+      padding: 8px 12px;
     }
 
     .prize-history.historical {
       color: #1d1d1f;
       font-weight: 600;
+    }
+
+    .prize-history.basis {
+      color: #1d1d1f;
+      font-weight: 600;
+    }
+
+    .saju-guide {
+      grid-column: 1 / -1;
+      background: #f3f0ff;
+      border-left: 4px solid #6741d9;
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #3d2a8a;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.03);
+      }
     }
 
     .chart-panel {
@@ -480,7 +582,15 @@
           <button id="saju-button" class="button" type="button">사주</button>
         </div>
         <div id="saju-panel" class="saju-panel">
-          <input id="saju-date-input" type="date" aria-label="생년월일">
+          <div class="calendar-radio" aria-label="양력 음력 선택">
+            <input id="calendar-solar" name="calendar-mode" type="radio" value="solar" checked>
+            <label for="calendar-solar">양력</label>
+            <input id="calendar-lunar" name="calendar-mode" type="radio" value="lunar">
+            <label for="calendar-lunar">음력</label>
+          </div>
+          <input id="saju-year-input" type="text" inputmode="numeric" maxlength="4" placeholder="YYYY" aria-label="생년">
+          <input id="saju-month-input" type="text" inputmode="numeric" maxlength="2" placeholder="MM" aria-label="생월">
+          <input id="saju-day-input" type="text" inputmode="numeric" maxlength="2" placeholder="DD" aria-label="생일">
           <select id="saju-time-select" aria-label="태어난 시">
             <option value="자">자시(23~01시)</option>
             <option value="축">축시(01~03시)</option>
@@ -495,6 +605,10 @@
             <option value="술">술시(19~21시)</option>
             <option value="해">해시(21~23시)</option>
           </select>
+          <div class="saju-mode-toggle" aria-label="사주 추천 모드">
+            <button id="saju-boost-mode" class="saju-mode-button active" type="button">기운 강화</button>
+            <button id="saju-balance-mode" class="saju-mode-button" type="button">기운 조화</button>
+          </div>
           <button id="saju-confirm-button" class="button" type="button">확인</button>
         </div>
       </section>
@@ -523,9 +637,16 @@
     const fortuneButton = document.querySelector('#fortune-button');
     const sajuButton = document.querySelector('#saju-button');
     const sajuPanel = document.querySelector('#saju-panel');
-    const sajuDateInput = document.querySelector('#saju-date-input');
+    const sajuYearInput = document.querySelector('#saju-year-input');
+    const sajuMonthInput = document.querySelector('#saju-month-input');
+    const sajuDayInput = document.querySelector('#saju-day-input');
     const sajuTimeSelect = document.querySelector('#saju-time-select');
     const sajuConfirmButton = document.querySelector('#saju-confirm-button');
+    const sajuBoostModeButton = document.querySelector('#saju-boost-mode');
+    const sajuBalanceModeButton = document.querySelector('#saju-balance-mode');
+    const calendarModeInputs = Array.from(document.querySelectorAll('input[name="calendar-mode"]'));
+    let sajuMode = 'boost';
+    let calendarMode = 'solar';
 
     function getBallColor(number) {
       if (number <= 10) return 'yellow';
@@ -594,6 +715,23 @@
       }
 
       return picked.sort((a, b) => a.number - b.number);
+    }
+
+    function passesRecommendFilter(selected) {
+      const oddCount = selected.filter((item) => item.number % 2 === 1).length;
+      const total = selected.reduce((sum, item) => sum + item.number, 0);
+      return oddCount !== 0 && oddCount !== 6 && total >= 100 && total <= 170;
+    }
+
+    function pickFilteredWeighted(stats, weightKey) {
+      let selected = pickWeighted(stats, weightKey);
+      for (let attempt = 0; attempt < 100; attempt += 1) {
+        if (passesRecommendFilter(selected)) {
+          return selected;
+        }
+        selected = pickWeighted(stats, weightKey);
+      }
+      return selected;
     }
 
     function renderBalls(selected, mode) {
@@ -671,7 +809,8 @@
 
       const detail = `(${best.drwNo}회차)`;
       if (best.rank <= 3) {
-        history.textContent = `🏆 역대 최고 ${best.rank}등 당첨 이력! ${detail}`;
+        const prefix = best.rank <= 2 ? '🎊 🏆' : '🏆';
+        history.textContent = `${prefix} 역대 최고 ${best.rank}등 당첨 이력! ${detail}`;
         history.className = `prize-history ${best.rank <= 2 ? 'top' : 'third'}`;
       } else {
         history.textContent = `✨ 역대 최고 ${best.rank}등 당첨 이력 ${detail}`;
@@ -742,14 +881,14 @@
 
     function recommendByFrequency() {
       hideSajuInput();
-      const selected = pickWeighted(state.stats, 'frequency');
+      const selected = pickFilteredWeighted(state.stats, 'frequency');
       modeLabel.textContent = '출현 횟수가 높은 번호에 더 높은 가중치를 적용했습니다.';
       animateRecommendation(selected, 'frequency');
     }
 
     function recommendByOverdue() {
       hideSajuInput();
-      const selected = pickWeighted(state.stats, 'overdue');
+      const selected = pickFilteredWeighted(state.stats, 'overdue');
       modeLabel.textContent = '오랫동안 나오지 않은 번호에 더 높은 가중치를 적용했습니다.';
       animateRecommendation(selected, 'overdue');
     }
@@ -761,6 +900,13 @@
     function renderHistoricalLabel(text) {
       const label = document.createElement('div');
       label.className = 'prize-history historical';
+      label.textContent = text;
+      balls.appendChild(label);
+    }
+
+    function renderBasisLabel(text) {
+      const label = document.createElement('div');
+      label.className = 'prize-history basis';
       label.textContent = text;
       balls.appendChild(label);
     }
@@ -898,6 +1044,13 @@
       금: [28, 36],
       수: [37, 45],
     };
+    const elementHanja = {
+      목: '木',
+      화: '火',
+      토: '土',
+      금: '金',
+      수: '水',
+    };
 
     function getRandomFromElement(element, usedNumbers) {
       const [start, end] = elementRanges[element];
@@ -921,21 +1074,29 @@
       }
     }
 
-    function getSajuNumbers(yearStem, yearBranch, monthBranch, timeBranch) {
+    function getSajuTargetElement(counts, mode) {
+      const entries = Object.keys(elementRanges).map((element) => [element, counts[element] || 0]);
+      if (mode === 'balance') {
+        return entries.sort((a, b) => a[1] - b[1])[0][0];
+      }
+      return entries.sort((a, b) => b[1] - a[1])[0][0];
+    }
+
+    function getSajuResult(yearStem, yearBranch, monthBranch, timeBranch, mode) {
       const elements = [yearStem.element, yearBranch.element, monthBranch.element, timeBranch.element];
       const counts = elements.reduce((acc, element) => {
         acc[element] = (acc[element] || 0) + 1;
         return acc;
       }, {});
-      const strongestElement = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+      const targetElement = getSajuTargetElement(counts, mode);
       const numbers = [];
       const usedNumbers = new Set();
 
       for (const element of elements) {
         addElementNumber(numbers, usedNumbers, element);
       }
-      addElementNumber(numbers, usedNumbers, strongestElement);
-      addElementNumber(numbers, usedNumbers, strongestElement);
+      addElementNumber(numbers, usedNumbers, targetElement);
+      addElementNumber(numbers, usedNumbers, targetElement);
 
       while (numbers.length < 6) {
         const next = randomLottoNumber();
@@ -945,38 +1106,126 @@
         }
       }
 
-      return numbers.slice(0, 6).sort((a, b) => a - b).map((number) => ({ number }));
+      return {
+        targetElement,
+        selected: numbers.slice(0, 6).sort((a, b) => a - b).map((number) => ({ number })),
+      };
     }
 
     function toggleSajuInput() {
       sajuPanel.classList.toggle('open');
       if (sajuPanel.classList.contains('open')) {
-        sajuDateInput.focus();
+        sajuYearInput.focus();
       }
     }
 
+    function setSajuMode(mode) {
+      sajuMode = mode;
+      sajuBoostModeButton.classList.toggle('active', mode === 'boost');
+      sajuBalanceModeButton.classList.toggle('active', mode === 'balance');
+    }
+
+    function setCalendarMode(mode) {
+      calendarMode = mode;
+    }
+
+    function onlyDigits(input) {
+      input.value = input.value.replace(/\D/g, '');
+    }
+
+    function moveFocusWhenFilled(input, nextInput, length) {
+      onlyDigits(input);
+      if (input.value.length >= length) {
+        nextInput.focus();
+      }
+    }
+
+    function formatDateParts(year, month, day) {
+      return `${year}.${String(month).padStart(2, '0')}.${String(day).padStart(2, '0')}`;
+    }
+
+    function getInputDateParts() {
+      return {
+        year: Number(sajuYearInput.value),
+        month: Number(sajuMonthInput.value),
+        day: Number(sajuDayInput.value),
+      };
+    }
+
+    function hasCompleteSajuDate() {
+      return sajuYearInput.value.length === 4 && sajuMonthInput.value.length >= 1 && sajuDayInput.value.length >= 1;
+    }
+
+    function getLunarDateFromSolar(year, month, day) {
+      if (typeof KoreanLunarCalendar === 'undefined') {
+        throw new Error('음력 변환 라이브러리를 불러오지 못했습니다.');
+      }
+
+      const calendar = new KoreanLunarCalendar();
+      if (!calendar.setSolarDate(year, month, day)) {
+        throw new Error('양력 날짜를 음력으로 변환할 수 없습니다.');
+      }
+
+      const lunar = calendar.getLunarCalendar();
+      return {
+        year: Number(lunar.lunarYear ?? lunar.year),
+        month: Number(lunar.lunarMonth ?? lunar.month),
+        day: Number(lunar.lunarDay ?? lunar.day),
+      };
+    }
+
+    function getSajuBaseDate() {
+      const inputDate = getInputDateParts();
+
+      if (calendarMode === 'lunar') {
+        return {
+          ...inputDate,
+          label: `음력 ${formatDateParts(inputDate.year, inputDate.month, inputDate.day)} 기준`,
+        };
+      }
+
+      const lunarDate = getLunarDateFromSolar(inputDate.year, inputDate.month, inputDate.day);
+      return {
+        ...lunarDate,
+        label: `양력 ${formatDateParts(inputDate.year, inputDate.month, inputDate.day)} → 음력 ${formatDateParts(lunarDate.year, lunarDate.month, lunarDate.day)} 기준`,
+      };
+    }
+
     function recommendSaju() {
-      if (!sajuDateInput.value) {
+      if (!hasCompleteSajuDate()) {
         modeLabel.textContent = '생년월일을 입력해주세요';
         return;
       }
 
-      const [yearText, monthText] = sajuDateInput.value.split('-');
-      const year = Number(yearText);
-      const month = Number(monthText);
-      const yearStem = heavenlyStems[year % 10];
-      const yearBranch = earthlyBranches[((year - 4) % 12 + 12) % 12];
-      const monthBranch = monthBranches[month];
+      let baseDate;
+      try {
+        baseDate = getSajuBaseDate();
+      } catch (error) {
+        modeLabel.textContent = error.message;
+        return;
+      }
+
+      const yearStem = heavenlyStems[baseDate.year % 10];
+      const yearBranch = earthlyBranches[((baseDate.year - 4) % 12 + 12) % 12];
+      const monthBranch = monthBranches[baseDate.month];
       const timeBranch = timeBranches[sajuTimeSelect.value];
-      const selected = getSajuNumbers(yearStem, yearBranch, monthBranch, timeBranch);
-      const resultText = `년주: ${yearStem.hanja}(${yearStem.element}) · 월지: ${monthBranch.hanja}(${monthBranch.element}) · 시지: ${timeBranch.hanja}(${timeBranch.element})`;
+      const sajuResult = getSajuResult(yearStem, yearBranch, monthBranch, timeBranch, sajuMode);
+      const selected = sajuResult.selected;
+      const resultText = `${baseDate.label} [년주: ${yearStem.hanja}(${yearStem.element}) · 월지: ${monthBranch.hanja}(${monthBranch.element}) · 시지: ${timeBranch.hanja}(${timeBranch.element})]`;
+      const guideText = sajuMode === 'boost'
+        ? `✨ 당신은 '${sajuResult.targetElement}(${elementHanja[sajuResult.targetElement]})'의 기운이 아주 강하시네요! 그 기운을 듬뿍 담은 번호들을 가져왔어요.`
+        : `✨ 사주에 '${sajuResult.targetElement}(${elementHanja[sajuResult.targetElement]})'의 기운이 조금 부족하시군요. 그 부족함을 꽉 채워 균형을 맞춰드릴게요!`;
 
       modeLabel.textContent = '사주 오행 흐름으로 뽑은 번호입니다.';
       animateRecommendation(selected, 'saju', {
         showMetrics: false,
         onComplete: () => {
+          renderBasisLabel(resultText);
+          const guide = document.createElement('div');
+          guide.className = 'saju-guide';
+          guide.textContent = guideText;
+          balls.appendChild(guide);
           renderPrizeHistory(selected);
-          renderHistoricalLabel(resultText);
         },
       });
     }
@@ -1019,12 +1268,22 @@
     historySecondButton.addEventListener('click', recommendHistoricalSecondPrize);
     fortuneButton.addEventListener('click', recommendFortune);
     sajuButton.addEventListener('click', toggleSajuInput);
+    sajuBoostModeButton.addEventListener('click', () => setSajuMode('boost'));
+    sajuBalanceModeButton.addEventListener('click', () => setSajuMode('balance'));
+    calendarModeInputs.forEach((input) => {
+      input.addEventListener('change', () => setCalendarMode(input.value));
+    });
+    sajuYearInput.addEventListener('input', () => moveFocusWhenFilled(sajuYearInput, sajuMonthInput, 4));
+    sajuMonthInput.addEventListener('input', () => moveFocusWhenFilled(sajuMonthInput, sajuDayInput, 2));
+    sajuDayInput.addEventListener('input', () => onlyDigits(sajuDayInput));
     sajuConfirmButton.addEventListener('click', recommendSaju);
 
     loadData();
   </script>
 </body>
 </html>
+
+
 
 
 
