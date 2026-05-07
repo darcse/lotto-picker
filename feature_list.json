@@ -1,0 +1,93 @@
+﻿[
+  {
+    "id": "SETUP-001",
+    "category": "setup",
+    "title": "프로젝트 구조 초기화 — 폴더 및 파일 생성",
+    "description": "프로젝트 루트에 index.html, fetch_lotto.py, lotto_data.json, requirements.txt, README.md가 존재하고 git이 초기화되어 있다.",
+    "steps": [
+      "C:\\vibe\\lotto-picker 폴더가 존재하는지 확인",
+      "index.html, fetch_lotto.py, lotto_data.json, requirements.txt, README.md 파일이 모두 존재하는지 확인",
+      "lotto_data.json 초기값이 빈 배열 []인지 확인",
+      "git log에 init 커밋이 존재하는지 확인"
+    ],
+    "passes": true
+  },
+  {
+    "id": "SETUP-002",
+    "category": "setup",
+    "title": "Python 의존성 — requirements.txt 및 설치 안내",
+    "description": "requirements.txt에 requests가 명시되어 있고, 미설치 시 fetch_lotto.py가 안내 메시지를 출력한다.",
+    "steps": [
+      "requirements.txt에 requests가 명시되어 있는지 확인",
+      "pip install -r requirements.txt 실행 시 오류 없이 설치되는지 확인",
+      "requests 미설치 상태에서 fetch_lotto.py 실행 시 안내 메시지가 출력되는지 확인"
+    ],
+    "passes": false
+  },
+  {
+    "id": "CORE-001",
+    "category": "core",
+    "title": "로또 데이터 수집 — Python 스크립트",
+    "description": "동행복권 API를 호출해 역대 전체 회차 당첨 번호를 수집하고 lotto_data.json으로 저장하는 Python 스크립트를 구현한다.",
+    "steps": [
+      "python fetch_lotto.py 실행 시 lotto_data.json 파일이 생성되는지 확인",
+      "lotto_data.json에 회차번호, 날짜, 번호 6개, 보너스번호 필드가 포함되어 있는지 확인",
+      "최신 회차 데이터가 포함되어 있는지 확인",
+      "이미 lotto_data.json이 존재할 때 재실행 시 중복 없이 최신 회차만 추가되는지 확인",
+      "인터넷 연결이 없을 때 실행 시 에러 메시지가 출력되고 기존 파일은 유지되는지 확인"
+    ],
+    "passes": false
+  },
+  {
+    "id": "CORE-002",
+    "category": "core",
+    "title": "통계 계산 — 번호별 빈도 및 비출현 분석",
+    "description": "lotto_data.json을 읽어 1~45번 각 번호의 출현 횟수와 마지막 출현 이후 경과 회차 수를 계산한다.",
+    "steps": [
+      "HTML 파일을 브라우저에서 열었을 때 lotto_data.json 로드 성공 확인",
+      "1~45번 전체 번호에 대해 출현 횟수가 계산되어 있는지 확인",
+      "각 번호의 마지막 출현 이후 경과 회차 값이 올바르게 계산되는지 확인",
+      "lotto_data.json이 없거나 비어 있을 때 에러 안내 메시지가 노출되는지 확인"
+    ],
+    "passes": false
+  },
+  {
+    "id": "CORE-003",
+    "category": "core",
+    "title": "번호 추천 — 빈도 기반 모드",
+    "description": "역대 출현 횟수가 높은 번호를 가중치로 삼아 6개 번호를 랜덤 추출하여 추천한다.",
+    "steps": [
+      "빈도 기반 추천 버튼 클릭 시 1~45 범위의 번호 6개가 중복 없이 출력되는지 확인",
+      "추천 번호 옆에 각 번호의 역대 출현 횟수가 함께 표시되는지 확인",
+      "버튼을 여러 번 클릭할 때마다 결과가 다르게 나오는지 확인",
+      "lotto_data.json 데이터가 1회차만 있는 극단적 상황에서도 6개가 정상 출력되는지 확인"
+    ],
+    "passes": false
+  },
+  {
+    "id": "CORE-004",
+    "category": "core",
+    "title": "번호 추천 — 비출현 기반 모드",
+    "description": "최근 출현 횟수가 적거나 오래 등장하지 않은 번호를 가중치로 삼아 6개 번호를 랜덤 추출하여 추천한다.",
+    "steps": [
+      "비출현 기반 추천 버튼 클릭 시 1~45 범위의 번호 6개가 중복 없이 출력되는지 확인",
+      "추천 번호 옆에 각 번호의 마지막 출현 이후 경과 회차 수가 함께 표시되는지 확인",
+      "버튼을 여러 번 클릭할 때마다 결과가 다르게 나오는지 확인",
+      "lotto_data.json 데이터가 1회차만 있는 극단적 상황에서도 6개가 정상 출력되는지 확인"
+    ],
+    "passes": false
+  },
+  {
+    "id": "CORE-005",
+    "category": "core",
+    "title": "UI — 결과 표시 및 통계 시각화",
+    "description": "추천 번호를 로또 볼 스타일로 시각화하고, 1~45번 번호별 출현 빈도 차트를 함께 표시한다.",
+    "steps": [
+      "추천 결과가 번호 색상 구분된 원형 볼 형태로 렌더링되는지 확인",
+      "번호별 출현 빈도 막대 차트가 정상 노출되는지 확인",
+      "현재 로드된 데이터의 총 회차 수와 최신 회차 번호가 상단에 표시되는지 확인",
+      "모바일/좁은 브라우저 창(width 400px 이하)에서도 레이아웃이 깨지지 않는지 확인"
+    ],
+    "passes": false
+  }
+]
