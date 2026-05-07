@@ -62,15 +62,25 @@ def parse_api_response(response_text):
 
 
 def fetch_round(session, drw_no):
-    try:
-        response = session.get(
-            API_URL.format(drw_no=drw_no),
-            headers={"User-Agent": "Mozilla/5.0"},
-            timeout=10,
-        )
-        response.raise_for_status()
-    except requests.RequestException as error:
-        raise RuntimeError(f"인터넷 연결 또는 API 요청에 실패했습니다: {error}") from error
+    max_retries = 2
+    last_error = None
+
+    for attempt in range(max_retries + 1):
+        try:
+            response = session.get(
+                API_URL.format(drw_no=drw_no),
+                headers={"User-Agent": "Mozilla/5.0"},
+                timeout=10,
+            )
+            response.raise_for_status()
+            break
+        except requests.RequestException as error:
+            last_error = error
+            if attempt < max_retries:
+                print(f"요청 실패, 재시도 {attempt + 1}/{max_retries}...", end=" ", flush=True)
+                continue
+
+            raise RuntimeError(f"인터넷 연결 또는 API 요청에 실패했습니다: {last_error}") from last_error
 
     data = parse_api_response(response.text)
 
@@ -134,5 +144,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
