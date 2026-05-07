@@ -68,11 +68,16 @@
     }
 
     h1 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
       color: #ffffff;
       font-size: 40px;
       line-height: 1.1;
       font-weight: 600;
       letter-spacing: 0;
+      text-align: center;
     }
 
     h2 {
@@ -112,10 +117,10 @@
       min-height: 48px;
       border: 0;
       border-radius: 980px;
-      padding: 16px 24px;
+      padding: 12px 24px;
       background: #0066cc;
       color: #ffffff;
-      font-size: 17px;
+      font-size: 15px;
       font-weight: 600;
       flex: 1;
       width: 100%;
@@ -229,16 +234,17 @@
     .chart-panel {
       display: grid;
       gap: 18px;
+      max-width: 100%;
     }
 
     .chart {
       display: grid;
-      grid-template-columns: repeat(45, minmax(10px, 1fr));
+      grid-template-columns: repeat(45, minmax(0, 1fr));
       align-items: end;
-      gap: 4px;
+      gap: 2px;
       min-height: 220px;
       padding-top: 8px;
-      overflow-x: auto;
+      overflow: visible;
     }
 
     .bar-item {
@@ -246,7 +252,7 @@
       grid-template-rows: 1fr auto;
       align-items: end;
       gap: 6px;
-      min-width: 12px;
+      min-width: 0;
       height: 220px;
     }
 
@@ -537,6 +543,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
