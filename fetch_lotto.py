@@ -6,6 +6,7 @@ except ImportError:
     exit(1)
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -46,15 +47,32 @@ def normalize_round(raw_round):
     return {field: raw_round[field] for field in LOTTO_FIELDS}
 
 
+def parse_api_response(response_text):
+    text = response_text.strip()
+    jsonp_match = re.fullmatch(r"[A-Za-z_$][\w$]*\((.*)\)\s*;?", text, re.DOTALL)
+    if jsonp_match:
+        text = jsonp_match.group(1).strip()
+
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as error:
+        print("API 응답 파싱에 실패했습니다. 응답 내용:")
+        print(response_text)
+        raise RuntimeError(f"API 응답을 JSON으로 해석할 수 없습니다: {error}") from error
+
+
 def fetch_round(session, drw_no):
     try:
-        response = session.get(API_URL.format(drw_no=drw_no), timeout=10)
+        response = session.get(
+            API_URL.format(drw_no=drw_no),
+            headers={"User-Agent": "Mozilla/5.0"},
+            timeout=10,
+        )
         response.raise_for_status()
-        data = response.json()
     except requests.RequestException as error:
         raise RuntimeError(f"인터넷 연결 또는 API 요청에 실패했습니다: {error}") from error
-    except ValueError as error:
-        raise RuntimeError(f"API 응답을 JSON으로 해석할 수 없습니다: {error}") from error
+
+    data = parse_api_response(response.text)
 
     if data.get("returnValue") == "fail":
         return None
@@ -116,4 +134,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
