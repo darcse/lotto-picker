@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lotto Picker</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <style>
     :root {
       --color-primary: #0066cc;
@@ -15,7 +16,7 @@
       --radius-pill: 980px;
       --radius-utility: 8px;
       --radius-card: 18px;
-      --font-body: SF Pro Text, system-ui, -apple-system, sans-serif;
+      --font-body: 'Pretendard', -apple-system, sans-serif;
       --ball-yellow: #f5a623;
       --ball-blue: #0066cc;
       --ball-red: #e03131;
@@ -32,7 +33,7 @@
       min-height: 100vh;
       background: #f5f5f7;
       color: var(--color-ink);
-      font-family: var(--font-body);
+      font-family: 'Pretendard', -apple-system, sans-serif;
       font-size: 17px;
       line-height: 1.47;
       letter-spacing: 0;
@@ -111,16 +112,23 @@
       min-height: 48px;
       border: 0;
       border-radius: 980px;
-      padding: 14px 28px;
-      background: var(--color-primary);
-      color: var(--color-canvas);
+      padding: 16px 24px;
+      background: #0066cc;
+      color: #ffffff;
       font-size: 17px;
+      font-weight: 600;
+      flex: 1;
+      width: 100%;
       cursor: pointer;
       transition: transform 120ms ease, opacity 120ms ease;
     }
 
+    .button:hover {
+      opacity: 0.85;
+    }
+
     .button:active {
-      transform: scale(0.95);
+      transform: scale(0.97);
     }
 
     .button:focus-visible {
@@ -132,6 +140,16 @@
       cursor: not-allowed;
       opacity: 0.45;
       transform: none;
+    }
+
+    #frequency-button {
+      background: #0066cc;
+      color: #ffffff;
+    }
+
+    #overdue-button {
+      background: #2f9e44;
+      color: #ffffff;
     }
 
     .result {
@@ -280,6 +298,7 @@
     .empty {
       color: var(--color-muted);
       font-size: 15px;
+      white-space: nowrap;
     }
 
     @media (max-width: 720px) {
@@ -346,7 +365,7 @@
           </div>
         </div>
         <div id="balls" class="balls">
-          <p class="empty">아직 추천 결과가 없습니다.</p>
+          <p class="empty">버튼을 눌러 번호를 추천받으세요</p>
         </div>
         <div class="actions">
           <button id="frequency-button" class="button" type="button" disabled>빈도 기반 추천</button>
@@ -518,4 +537,6 @@
   </script>
 </body>
 </html>
+
+
 
