@@ -157,6 +157,16 @@
       color: #ffffff;
     }
 
+    #history-first-button {
+      background: #1d1d1f;
+      color: #ffffff;
+    }
+
+    #history-second-button {
+      background: #868e96;
+      color: #ffffff;
+    }
+
     .result {
       display: grid;
       gap: 18px;
@@ -276,6 +286,11 @@
 
     .prize-history.none {
       color: #868e96;
+    }
+
+    .prize-history.historical {
+      color: #1d1d1f;
+      font-weight: 600;
     }
 
     .chart-panel {
@@ -424,6 +439,10 @@
           <button id="frequency-button" class="button" type="button" disabled>빈도 기반 추천</button>
           <button id="overdue-button" class="button" type="button" disabled>비출현 기반 추천</button>
         </div>
+        <div class="actions">
+          <button id="history-first-button" class="button" type="button" disabled>역대 1등 번호</button>
+          <button id="history-second-button" class="button" type="button" disabled>역대 2등 번호</button>
+        </div>
       </section>
 
       <section class="panel chart-panel" aria-labelledby="chart-title">
@@ -445,6 +464,8 @@
     const modeLabel = document.querySelector('#mode-label');
     const frequencyButton = document.querySelector('#frequency-button');
     const overdueButton = document.querySelector('#overdue-button');
+    const historyFirstButton = document.querySelector('#history-first-button');
+    const historySecondButton = document.querySelector('#history-second-button');
 
     function getBallColor(number) {
       if (number <= 10) return 'yellow';
@@ -529,6 +550,8 @@
     function setButtonsDisabled(disabled) {
       frequencyButton.disabled = disabled;
       overdueButton.disabled = disabled;
+      historyFirstButton.disabled = disabled;
+      historySecondButton.disabled = disabled;
     }
 
     function randomLottoNumber() {
@@ -600,11 +623,12 @@
       balls.appendChild(history);
     }
 
-    function animateRecommendation(selected, mode) {
+    function animateRecommendation(selected, mode, options = {}) {
       setButtonsDisabled(true);
 
       const metricLabel = mode === 'frequency' ? '출현' : '경과';
       const metricKey = mode === 'frequency' ? 'frequency' : 'overdue';
+      const showMetrics = options.showMetrics !== false;
       balls.innerHTML = Array.from({ length: 6 }, () => `
         <div class="ball-wrap">
           <div class="ball pending">${randomLottoNumber()}</div>
@@ -624,12 +648,16 @@
           const ball = ballElements[index];
           ball.textContent = item.number;
           ball.className = `ball ${getBallColor(item.number)} bounce`;
-          metricElements[index].textContent = `${metricLabel} ${item[metricKey]}회`;
+          metricElements[index].textContent = showMetrics ? `${metricLabel} ${item[metricKey]}회` : '';
 
           setTimeout(() => {
             ball.classList.remove('bounce');
             if (index === selected.length - 1) {
-              renderPrizeHistory(selected);
+              if (options.onComplete) {
+                options.onComplete();
+              } else {
+                renderPrizeHistory(selected);
+              }
               setButtonsDisabled(false);
             }
           }, 200);
@@ -660,6 +688,44 @@
       const selected = pickWeighted(state.stats, 'overdue');
       modeLabel.textContent = '오랫동안 나오지 않은 번호에 더 높은 가중치를 적용했습니다.';
       animateRecommendation(selected, 'overdue');
+    }
+
+    function getRandomRound() {
+      return state.rounds[Math.floor(Math.random() * state.rounds.length)];
+    }
+
+    function renderHistoricalLabel(text) {
+      const label = document.createElement('div');
+      label.className = 'prize-history historical';
+      label.textContent = text;
+      balls.appendChild(label);
+    }
+
+    function recommendHistoricalFirstPrize() {
+      const round = getRandomRound();
+      const selected = getRoundNumbers(round).map((number) => ({ number }));
+      modeLabel.textContent = '랜덤으로 선택한 역대 1등 당첨 번호입니다.';
+      animateRecommendation(selected, 'historical', {
+        showMetrics: false,
+        onComplete: () => renderHistoricalLabel(`${round.drwNo}회차 1등 당첨 번호`),
+      });
+    }
+
+    function recommendHistoricalSecondPrize() {
+      const round = getRandomRound();
+      const selected = [
+        Number(round.drwtNo1),
+        Number(round.drwtNo2),
+        Number(round.drwtNo3),
+        Number(round.drwtNo4),
+        Number(round.drwtNo5),
+        Number(round.bnusNo),
+      ].map((number) => ({ number }));
+      modeLabel.textContent = '랜덤으로 선택한 역대 2등 당첨 번호입니다.';
+      animateRecommendation(selected, 'historical', {
+        showMetrics: false,
+        onComplete: () => renderHistoricalLabel(`${round.drwNo}회차 2등 당첨 번호 (보너스: ${round.bnusNo})`),
+      });
     }
 
     function setError(message) {
@@ -696,11 +762,14 @@
 
     frequencyButton.addEventListener('click', recommendByFrequency);
     overdueButton.addEventListener('click', recommendByOverdue);
+    historyFirstButton.addEventListener('click', recommendHistoricalFirstPrize);
+    historySecondButton.addEventListener('click', recommendHistoricalSecondPrize);
 
     loadData();
   </script>
 </body>
 </html>
+
 
 
 
