@@ -143,7 +143,7 @@
 
     .button:disabled {
       cursor: not-allowed;
-      opacity: 0.45;
+      opacity: 0.5;
       transform: none;
     }
 
@@ -221,6 +221,26 @@
 
     .ball.green {
       background: var(--ball-green);
+    }
+
+    .ball.pending {
+      background: #cccccc;
+      color: #ffffff;
+      text-shadow: none;
+    }
+
+    .ball.bounce {
+      animation: ball-bounce 200ms ease-out;
+    }
+
+    @keyframes ball-bounce {
+      0% {
+        transform: scale(1.3);
+      }
+
+      100% {
+        transform: scale(1);
+      }
     }
 
     .metric {
@@ -479,6 +499,51 @@
       `).join('');
     }
 
+    function setButtonsDisabled(disabled) {
+      frequencyButton.disabled = disabled;
+      overdueButton.disabled = disabled;
+    }
+
+    function randomLottoNumber() {
+      return Math.floor(Math.random() * 45) + 1;
+    }
+
+    function animateRecommendation(selected, mode) {
+      setButtonsDisabled(true);
+
+      const metricLabel = mode === 'frequency' ? '출현' : '경과';
+      const metricKey = mode === 'frequency' ? 'frequency' : 'overdue';
+      balls.innerHTML = Array.from({ length: 6 }, () => `
+        <div class="ball-wrap">
+          <div class="ball pending">${randomLottoNumber()}</div>
+          <div class="metric">&nbsp;</div>
+        </div>
+      `).join('');
+
+      const ballElements = Array.from(balls.querySelectorAll('.ball'));
+      const metricElements = Array.from(balls.querySelectorAll('.metric'));
+      const intervals = ballElements.map((ball) => setInterval(() => {
+        ball.textContent = randomLottoNumber();
+      }, 50));
+
+      selected.forEach((item, index) => {
+        setTimeout(() => {
+          clearInterval(intervals[index]);
+          const ball = ballElements[index];
+          ball.textContent = item.number;
+          ball.className = `ball ${getBallColor(item.number)} bounce`;
+          metricElements[index].textContent = `${metricLabel} ${item[metricKey]}회`;
+
+          setTimeout(() => {
+            ball.classList.remove('bounce');
+            if (index === selected.length - 1) {
+              setButtonsDisabled(false);
+            }
+          }, 200);
+        }, (index + 1) * 400);
+      });
+    }
+
     function renderChart(stats) {
       const maxFrequency = Math.max(...stats.map((item) => item.frequency), 1);
       chart.innerHTML = stats.map((item) => {
@@ -495,13 +560,13 @@
     function recommendByFrequency() {
       const selected = pickWeighted(state.stats, 'frequency');
       modeLabel.textContent = '출현 횟수가 높은 번호에 더 높은 가중치를 적용했습니다.';
-      renderBalls(selected, 'frequency');
+      animateRecommendation(selected, 'frequency');
     }
 
     function recommendByOverdue() {
       const selected = pickWeighted(state.stats, 'overdue');
       modeLabel.textContent = '오랫동안 나오지 않은 번호에 더 높은 가중치를 적용했습니다.';
-      renderBalls(selected, 'overdue');
+      animateRecommendation(selected, 'overdue');
     }
 
     function setError(message) {
@@ -543,6 +608,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
