@@ -251,6 +251,33 @@
       word-break: keep-all;
     }
 
+    .prize-history {
+      grid-column: 1 / -1;
+      background: #f5f5f7;
+      border-radius: 12px;
+      padding: 12px 16px;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    .prize-history.top {
+      color: #e03131;
+      font-weight: 600;
+    }
+
+    .prize-history.third {
+      color: #f5a623;
+      font-weight: 600;
+    }
+
+    .prize-history.prize {
+      color: #0066cc;
+    }
+
+    .prize-history.none {
+      color: #868e96;
+    }
+
     .chart-panel {
       display: grid;
       gap: 18px;
@@ -508,6 +535,72 @@
       return Math.floor(Math.random() * 45) + 1;
     }
 
+    function getRoundNumbers(round) {
+      return [
+        Number(round.drwtNo1),
+        Number(round.drwtNo2),
+        Number(round.drwtNo3),
+        Number(round.drwtNo4),
+        Number(round.drwtNo5),
+        Number(round.drwtNo6),
+      ];
+    }
+
+    function getPrizeRank(matchCount, bonusMatched) {
+      if (matchCount === 6) return 1;
+      if (matchCount === 5 && bonusMatched) return 2;
+      if (matchCount === 5) return 3;
+      if (matchCount === 4) return 4;
+      if (matchCount === 3) return 5;
+      return null;
+    }
+
+    function findBestPrizeHistory(selected) {
+      const selectedNumbers = new Set(selected.map((item) => item.number));
+      let best = null;
+
+      for (const round of state.rounds) {
+        const roundNumbers = getRoundNumbers(round);
+        const matchCount = roundNumbers.filter((number) => selectedNumbers.has(number)).length;
+        const bonusMatched = selectedNumbers.has(Number(round.bnusNo));
+        const rank = getPrizeRank(matchCount, bonusMatched);
+
+        if (rank && (!best || rank < best.rank)) {
+          best = {
+            rank,
+            drwNo: round.drwNo,
+            drwNoDate: round.drwNoDate,
+          };
+        }
+      }
+
+      return best;
+    }
+
+    function renderPrizeHistory(selected) {
+      const best = findBestPrizeHistory(selected);
+      const history = document.createElement('div');
+      history.className = 'prize-history none';
+
+      if (!best) {
+        history.textContent = '이 조합은 역대 당첨 이력이 없습니다';
+        balls.appendChild(history);
+        return;
+      }
+
+      const dateText = best.drwNoDate || '날짜 없음';
+      const detail = `(${best.drwNo}회차 · ${dateText})`;
+      if (best.rank <= 3) {
+        history.textContent = `🏆 역대 최고 ${best.rank}등 당첨 이력! ${detail}`;
+        history.className = `prize-history ${best.rank <= 2 ? 'top' : 'third'}`;
+      } else {
+        history.textContent = `✨ 역대 최고 ${best.rank}등 당첨 이력 ${detail}`;
+        history.className = 'prize-history prize';
+      }
+
+      balls.appendChild(history);
+    }
+
     function animateRecommendation(selected, mode) {
       setButtonsDisabled(true);
 
@@ -537,6 +630,7 @@
           setTimeout(() => {
             ball.classList.remove('bounce');
             if (index === selected.length - 1) {
+              renderPrizeHistory(selected);
               setButtonsDisabled(false);
             }
           }, 200);
@@ -608,6 +702,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
