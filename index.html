@@ -163,6 +163,41 @@
       color: #ffffff;
     }
 
+    #fortune-button {
+      background: #6741d9;
+      color: #ffffff;
+    }
+
+    #birthday-button {
+      background: #e03131;
+      color: #ffffff;
+    }
+
+    .birthday-panel {
+      display: none;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .birthday-panel.open {
+      display: grid;
+    }
+
+    .birthday-panel input {
+      min-width: 0;
+      border: 1px solid #d0d0d5;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+
+    .birthday-panel .button {
+      min-height: 42px;
+      padding: 10px 18px;
+      background: #e03131;
+    }
+
     .result {
       display: grid;
       gap: 18px;
@@ -430,6 +465,14 @@
           <button id="history-first-button" class="button" type="button">역대 1등 번호</button>
           <button id="history-second-button" class="button" type="button">역대 2등 번호</button>
         </div>
+        <div class="actions">
+          <button id="fortune-button" class="button" type="button">오늘의 운세 🔮</button>
+          <button id="birthday-button" class="button" type="button">생년월일 🎂</button>
+        </div>
+        <div id="birthday-panel" class="birthday-panel">
+          <input id="birthday-input" type="date" aria-label="생년월일">
+          <button id="birthday-confirm-button" class="button" type="button">확인</button>
+        </div>
       </section>
 
       <section class="panel chart-panel" aria-labelledby="chart-title">
@@ -453,6 +496,11 @@
     const overdueButton = document.querySelector('#overdue-button');
     const historyFirstButton = document.querySelector('#history-first-button');
     const historySecondButton = document.querySelector('#history-second-button');
+    const fortuneButton = document.querySelector('#fortune-button');
+    const birthdayButton = document.querySelector('#birthday-button');
+    const birthdayPanel = document.querySelector('#birthday-panel');
+    const birthdayInput = document.querySelector('#birthday-input');
+    const birthdayConfirmButton = document.querySelector('#birthday-confirm-button');
 
     function getBallColor(number) {
       if (number <= 10) return 'yellow';
@@ -713,6 +761,114 @@
       });
     }
 
+    function toLottoNumber(value) {
+      const normalized = value % 45;
+      return normalized === 0 ? 45 : normalized;
+    }
+
+    function pickUniqueWeighted(numbers) {
+      const pool = numbers.map((item) => ({ ...item }));
+      const picked = [];
+
+      while (picked.length < 6 && pool.length > 0) {
+        const totalWeight = pool.reduce((sum, item) => sum + item.weight, 0);
+        let target = Math.random() * totalWeight;
+        const index = pool.findIndex((item) => {
+          target -= item.weight;
+          return target <= 0;
+        });
+        const safeIndex = index === -1 ? pool.length - 1 : index;
+        picked.push(pool.splice(safeIndex, 1)[0]);
+      }
+
+      return picked.sort((a, b) => a.number - b.number);
+    }
+
+    function getFortuneEnergy(month) {
+      if (month <= 2) return { element: '목(木)', ranges: [[1, 9], [10, 18]] };
+      if (month <= 4) return { element: '화(火)', ranges: [[10, 18], [19, 27]] };
+      if (month <= 6) return { element: '토(土)', ranges: [[19, 27]] };
+      if (month <= 8) return { element: '금(金)', ranges: [[28, 36]] };
+      if (month <= 10) return { element: '수(水)', ranges: [[37, 45]] };
+      return { element: '목(木)', ranges: [[1, 9]] };
+    }
+
+    function recommendFortune() {
+      const today = new Date();
+      const month = today.getMonth() + 1;
+      const day = today.getDate();
+      const energy = getFortuneEnergy(month);
+      const yinYang = day % 2 === 1 ? '양(陽)' : '음(陰)';
+      const weighted = Array.from({ length: 45 }, (_, index) => {
+        const number = index + 1;
+        const boosted = energy.ranges.some(([start, end]) => number >= start && number <= end);
+        return { number, weight: boosted ? 3 : 1 };
+      });
+      const selected = pickUniqueWeighted(weighted);
+
+      modeLabel.textContent = `${month}월 ${day}일의 기운으로 뽑은 번호입니다.`;
+      animateRecommendation(selected, 'fortune', {
+        showMetrics: false,
+        onComplete: () => {
+          renderPrizeHistory(selected);
+          renderHistoricalLabel(`오늘의 기운: ${month}월 ${day}일 · ${energy.element} · ${yinYang}`);
+        },
+      });
+    }
+
+    function getBirthdayNumbers(value) {
+      const digits = value.replaceAll('-', '');
+      const year = Number(digits.slice(0, 4));
+      const month = Number(digits.slice(4, 6));
+      const day = Number(digits.slice(6, 8));
+      const digitList = digits.split('').map(Number);
+      const digitSum = digitList.reduce((sum, number) => sum + number, 0);
+      const oddPositionSum = digitList.reduce((sum, number, index) => index % 2 === 0 ? sum + number : sum, 0);
+      const candidates = [
+        toLottoNumber(digitSum),
+        toLottoNumber(year),
+        toLottoNumber(month),
+        toLottoNumber(day),
+        toLottoNumber(digitSum),
+        toLottoNumber(oddPositionSum),
+      ];
+      const unique = [...new Set(candidates)];
+
+      while (unique.length < 6) {
+        const next = randomLottoNumber();
+        if (!unique.includes(next)) {
+          unique.push(next);
+        }
+      }
+
+      return unique.slice(0, 6).sort((a, b) => a - b).map((number) => ({ number }));
+    }
+
+    function toggleBirthdayInput() {
+      birthdayPanel.classList.toggle('open');
+      if (birthdayPanel.classList.contains('open')) {
+        birthdayInput.focus();
+      }
+    }
+
+    function recommendBirthday() {
+      if (!birthdayInput.value) {
+        modeLabel.textContent = '생년월일을 입력해주세요';
+        return;
+      }
+
+      const selected = getBirthdayNumbers(birthdayInput.value);
+      const [year, month, day] = birthdayInput.value.split('-');
+      modeLabel.textContent = `${year}년 ${month}월 ${day}일 기준 개인 번호입니다.`;
+      animateRecommendation(selected, 'birthday', {
+        showMetrics: false,
+        onComplete: () => {
+          renderPrizeHistory(selected);
+          renderHistoricalLabel(`${year}년 ${month}월 ${day}일 기준 개인 번호`);
+        },
+      });
+    }
+
     function setError(message) {
       statusBox.textContent = message;
       statusBox.classList.add('error');
@@ -749,11 +905,15 @@
     overdueButton.addEventListener('click', recommendByOverdue);
     historyFirstButton.addEventListener('click', recommendHistoricalFirstPrize);
     historySecondButton.addEventListener('click', recommendHistoricalSecondPrize);
+    fortuneButton.addEventListener('click', recommendFortune);
+    birthdayButton.addEventListener('click', toggleBirthdayInput);
+    birthdayConfirmButton.addEventListener('click', recommendBirthday);
 
     loadData();
   </script>
 </body>
 </html>
+
 
 
 
