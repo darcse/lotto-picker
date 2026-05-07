@@ -9,7 +9,7 @@ import json
 import sys
 from pathlib import Path
 
-SOURCE_URL = "https://raw.githubusercontent.com/smok95/lotto/master/lotto.json"
+SOURCE_URL = "https://smok95.github.io/lotto/results/all.json"
 DATA_FILE = Path(__file__).with_name("lotto_data.json")
 
 
@@ -104,3 +104,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
