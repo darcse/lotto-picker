@@ -588,8 +588,7 @@
         return;
       }
 
-      const dateText = best.drwNoDate || '날짜 없음';
-      const detail = `(${best.drwNo}회차 · ${dateText})`;
+      const detail = `(${best.drwNo}회차)`;
       if (best.rank <= 3) {
         history.textContent = `🏆 역대 최고 ${best.rank}등 당첨 이력! ${detail}`;
         history.className = `prize-history ${best.rank <= 2 ? 'top' : 'third'}`;
@@ -702,6 +701,7 @@
   </script>
 </body>
 </html>
+
 
 
 
