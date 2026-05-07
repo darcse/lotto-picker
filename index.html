@@ -551,6 +551,71 @@
         height: 54px;
       }
     }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 12px;
+      }
+
+      .hero {
+        padding: 32px 16px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      .app {
+        padding: 12px;
+      }
+
+      .actions {
+        flex-wrap: wrap;
+      }
+
+      .actions .button {
+        flex: 1 1 calc(50% - 4px);
+        max-width: calc(50% - 4px);
+        padding: 10px 8px;
+        font-size: 13px;
+      }
+
+      .saju-panel.open {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .calendar-radio {
+        width: 100%;
+      }
+
+      .calendar-radio label {
+        flex: 1;
+      }
+
+      #saju-year-input,
+      #saju-month-input,
+      #saju-day-input {
+        flex: 1;
+        min-width: 60px;
+      }
+
+      #saju-time-select {
+        width: 100%;
+        flex: 1 1 100%;
+      }
+
+      .saju-mode-toggle,
+      .saju-panel .button {
+        flex: 1;
+      }
+
+      .ball {
+        width: 44px;
+        height: 44px;
+        font-size: 16px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1282,6 +1347,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
