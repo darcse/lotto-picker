@@ -29,7 +29,7 @@ def load_existing_data():
         return []
 
     try:
-        with DATA_FILE.open("r", encoding="utf-8") as file:
+        with DATA_FILE.open("r", encoding="utf-8-sig") as file:
             data = json.load(file)
     except json.JSONDecodeError as error:
         print(f"lotto_data.json을 읽을 수 없습니다: {error}")
@@ -68,7 +68,7 @@ def fetch_round(session, drw_no):
 
 def save_data(rounds):
     sorted_rounds = sorted(rounds, key=lambda item: item["drwNo"])
-    with DATA_FILE.open("w", encoding="utf-8") as file:
+    with DATA_FILE.open("w", encoding="utf-8-sig") as file:
         json.dump(sorted_rounds, file, ensure_ascii=False, indent=2)
         file.write("\n")
 
@@ -116,3 +116,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
