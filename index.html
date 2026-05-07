@@ -114,27 +114,35 @@
     }
 
     .button {
-      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
       border: 0;
-      border-radius: 980px;
-      padding: 12px 24px;
+      border-radius: 12px;
+      padding: 8px 6px;
       background: #0066cc;
       color: #ffffff;
-      font-size: 14px;
-      font-weight: 600;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.2;
       flex: 1 1 0;
       min-width: 0;
       width: auto;
+      text-align: center;
       cursor: pointer;
-      transition: transform 120ms ease, opacity 120ms ease;
+      box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: transform 110ms ease, opacity 120ms ease, box-shadow 110ms ease, filter 120ms ease;
     }
 
     .button:hover {
-      opacity: 0.85;
+      opacity: 0.92;
+      filter: brightness(1.04);
     }
 
     .button:active {
-      transform: scale(0.97);
+      transform: translateY(3px) scale(0.94);
+      box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.08);
     }
 
     .button:focus-visible {
@@ -168,34 +176,38 @@
       color: #ffffff;
     }
 
-    #birthday-button {
+    #saju-button {
       background: #e03131;
       color: #ffffff;
     }
 
-    .birthday-panel {
+    .saju-panel {
       display: none;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
       gap: 8px;
       margin-top: 12px;
     }
 
-    .birthday-panel.open {
+    .saju-panel.open {
       display: grid;
     }
 
-    .birthday-panel input {
+    .saju-panel input,
+    .saju-panel select {
       min-width: 0;
       border: 1px solid #d0d0d5;
       border-radius: 12px;
       padding: 10px 12px;
       font-size: 14px;
+      background: #ffffff;
     }
 
-    .birthday-panel .button {
+    .saju-panel .button {
+      aspect-ratio: auto;
       min-height: 42px;
       padding: 10px 18px;
       background: #e03131;
+      border-radius: 12px;
     }
 
     .result {
@@ -441,8 +453,8 @@
 </head>
 <body>
   <header class="hero">
-    <h1>🍀 Lotto Picker</h1>
-    <p id="summary" class="summary">통계 기반 로또 번호 추천</p>
+    <h1>Lotto Picker</h1>
+    <p id="summary" class="summary">로또도 사는 놈이 된다!</p>
   </header>
 
   <main class="app">
@@ -460,18 +472,30 @@
           <p class="empty">버튼을 눌러 번호를 추천받으세요</p>
         </div>
         <div class="actions">
-          <button id="frequency-button" class="button" type="button" disabled>빈도 기반 추천</button>
-          <button id="overdue-button" class="button" type="button" disabled>비출현 기반 추천</button>
-          <button id="history-first-button" class="button" type="button">역대 1등 번호</button>
-          <button id="history-second-button" class="button" type="button">역대 2등 번호</button>
+          <button id="frequency-button" class="button" type="button" disabled>빈도</button>
+          <button id="overdue-button" class="button" type="button" disabled>비출현</button>
+          <button id="history-first-button" class="button" type="button">역대1등</button>
+          <button id="history-second-button" class="button" type="button">역대2등</button>
+          <button id="fortune-button" class="button" type="button">음양오행</button>
+          <button id="saju-button" class="button" type="button">사주</button>
         </div>
-        <div class="actions">
-          <button id="fortune-button" class="button" type="button">음양오행 🔮</button>
-          <button id="birthday-button" class="button" type="button">생년월일 🎂</button>
-        </div>
-        <div id="birthday-panel" class="birthday-panel">
-          <input id="birthday-input" type="date" aria-label="생년월일">
-          <button id="birthday-confirm-button" class="button" type="button">확인</button>
+        <div id="saju-panel" class="saju-panel">
+          <input id="saju-date-input" type="date" aria-label="생년월일">
+          <select id="saju-time-select" aria-label="태어난 시">
+            <option value="자">자시(23~01시)</option>
+            <option value="축">축시(01~03시)</option>
+            <option value="인">인시(03~05시)</option>
+            <option value="묘">묘시(05~07시)</option>
+            <option value="진">진시(07~09시)</option>
+            <option value="사">사시(09~11시)</option>
+            <option value="오">오시(11~13시)</option>
+            <option value="미">미시(13~15시)</option>
+            <option value="신">신시(15~17시)</option>
+            <option value="유">유시(17~19시)</option>
+            <option value="술">술시(19~21시)</option>
+            <option value="해">해시(21~23시)</option>
+          </select>
+          <button id="saju-confirm-button" class="button" type="button">확인</button>
         </div>
       </section>
 
@@ -497,10 +521,11 @@
     const historyFirstButton = document.querySelector('#history-first-button');
     const historySecondButton = document.querySelector('#history-second-button');
     const fortuneButton = document.querySelector('#fortune-button');
-    const birthdayButton = document.querySelector('#birthday-button');
-    const birthdayPanel = document.querySelector('#birthday-panel');
-    const birthdayInput = document.querySelector('#birthday-input');
-    const birthdayConfirmButton = document.querySelector('#birthday-confirm-button');
+    const sajuButton = document.querySelector('#saju-button');
+    const sajuPanel = document.querySelector('#saju-panel');
+    const sajuDateInput = document.querySelector('#saju-date-input');
+    const sajuTimeSelect = document.querySelector('#saju-time-select');
+    const sajuConfirmButton = document.querySelector('#saju-confirm-button');
 
     function getBallColor(number) {
       if (number <= 10) return 'yellow';
@@ -711,19 +736,19 @@
       }).join('');
     }
 
-    function hideBirthdayInput() {
-      birthdayPanel.classList.remove('open');
+    function hideSajuInput() {
+      sajuPanel.classList.remove('open');
     }
 
     function recommendByFrequency() {
-      hideBirthdayInput();
+      hideSajuInput();
       const selected = pickWeighted(state.stats, 'frequency');
       modeLabel.textContent = '출현 횟수가 높은 번호에 더 높은 가중치를 적용했습니다.';
       animateRecommendation(selected, 'frequency');
     }
 
     function recommendByOverdue() {
-      hideBirthdayInput();
+      hideSajuInput();
       const selected = pickWeighted(state.stats, 'overdue');
       modeLabel.textContent = '오랫동안 나오지 않은 번호에 더 높은 가중치를 적용했습니다.';
       animateRecommendation(selected, 'overdue');
@@ -741,7 +766,7 @@
     }
 
     function recommendHistoricalFirstPrize() {
-      hideBirthdayInput();
+      hideSajuInput();
       const round = getRandomRound();
       const selected = getRoundNumbers(round).map((number) => ({ number }));
       modeLabel.textContent = '랜덤으로 선택한 역대 1등 당첨 번호입니다.';
@@ -752,7 +777,7 @@
     }
 
     function recommendHistoricalSecondPrize() {
-      hideBirthdayInput();
+      hideSajuInput();
       const round = getRandomRound();
       const selected = [
         Number(round.drwtNo1),
@@ -802,7 +827,7 @@
     }
 
     function recommendFortune() {
-      hideBirthdayInput();
+      hideSajuInput();
       const today = new Date();
       const month = today.getMonth() + 1;
       const day = today.getDate();
@@ -825,55 +850,133 @@
       });
     }
 
-    function getBirthdayNumbers(value) {
-      const digits = value.replaceAll('-', '');
-      const year = Number(digits.slice(0, 4));
-      const month = Number(digits.slice(4, 6));
-      const day = Number(digits.slice(6, 8));
-      const digitList = digits.split('').map(Number);
-      const digitSum = digitList.reduce((sum, number) => sum + number, 0);
-      const oddPositionSum = digitList.reduce((sum, number, index) => index % 2 === 0 ? sum + number : sum, 0);
-      const candidates = [
-        toLottoNumber(digitSum),
-        toLottoNumber(year),
-        toLottoNumber(month),
-        toLottoNumber(day),
-        toLottoNumber(digitSum),
-        toLottoNumber(oddPositionSum),
-      ];
-      const unique = [...new Set(candidates)];
+    const heavenlyStems = [
+      { hanja: '庚', element: '금' },
+      { hanja: '辛', element: '금' },
+      { hanja: '壬', element: '수' },
+      { hanja: '癸', element: '수' },
+      { hanja: '甲', element: '목' },
+      { hanja: '乙', element: '목' },
+      { hanja: '丙', element: '화' },
+      { hanja: '丁', element: '화' },
+      { hanja: '戊', element: '토' },
+      { hanja: '己', element: '토' },
+    ];
+    const earthlyBranches = [
+      { key: '자', hanja: '子', element: '수' },
+      { key: '축', hanja: '丑', element: '토' },
+      { key: '인', hanja: '寅', element: '목' },
+      { key: '묘', hanja: '卯', element: '목' },
+      { key: '진', hanja: '辰', element: '토' },
+      { key: '사', hanja: '巳', element: '화' },
+      { key: '오', hanja: '午', element: '화' },
+      { key: '미', hanja: '未', element: '토' },
+      { key: '신', hanja: '申', element: '금' },
+      { key: '유', hanja: '酉', element: '금' },
+      { key: '술', hanja: '戌', element: '토' },
+      { key: '해', hanja: '亥', element: '수' },
+    ];
+    const monthBranches = {
+      1: earthlyBranches[2],
+      2: earthlyBranches[3],
+      3: earthlyBranches[4],
+      4: earthlyBranches[5],
+      5: earthlyBranches[6],
+      6: earthlyBranches[7],
+      7: earthlyBranches[8],
+      8: earthlyBranches[9],
+      9: earthlyBranches[10],
+      10: earthlyBranches[11],
+      11: earthlyBranches[0],
+      12: earthlyBranches[1],
+    };
+    const timeBranches = Object.fromEntries(earthlyBranches.map((branch) => [branch.key, branch]));
+    const elementRanges = {
+      목: [1, 9],
+      화: [10, 18],
+      토: [19, 27],
+      금: [28, 36],
+      수: [37, 45],
+    };
 
-      while (unique.length < 6) {
+    function getRandomFromElement(element, usedNumbers) {
+      const [start, end] = elementRanges[element];
+      const candidates = [];
+      for (let number = start; number <= end; number += 1) {
+        if (!usedNumbers.has(number)) {
+          candidates.push(number);
+        }
+      }
+      if (candidates.length === 0) {
+        return null;
+      }
+      return candidates[Math.floor(Math.random() * candidates.length)];
+    }
+
+    function addElementNumber(numbers, usedNumbers, element) {
+      const number = getRandomFromElement(element, usedNumbers);
+      if (number) {
+        usedNumbers.add(number);
+        numbers.push(number);
+      }
+    }
+
+    function getSajuNumbers(yearStem, yearBranch, monthBranch, timeBranch) {
+      const elements = [yearStem.element, yearBranch.element, monthBranch.element, timeBranch.element];
+      const counts = elements.reduce((acc, element) => {
+        acc[element] = (acc[element] || 0) + 1;
+        return acc;
+      }, {});
+      const strongestElement = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+      const numbers = [];
+      const usedNumbers = new Set();
+
+      for (const element of elements) {
+        addElementNumber(numbers, usedNumbers, element);
+      }
+      addElementNumber(numbers, usedNumbers, strongestElement);
+      addElementNumber(numbers, usedNumbers, strongestElement);
+
+      while (numbers.length < 6) {
         const next = randomLottoNumber();
-        if (!unique.includes(next)) {
-          unique.push(next);
+        if (!usedNumbers.has(next)) {
+          usedNumbers.add(next);
+          numbers.push(next);
         }
       }
 
-      return unique.slice(0, 6).sort((a, b) => a - b).map((number) => ({ number }));
+      return numbers.slice(0, 6).sort((a, b) => a - b).map((number) => ({ number }));
     }
 
-    function toggleBirthdayInput() {
-      birthdayPanel.classList.toggle('open');
-      if (birthdayPanel.classList.contains('open')) {
-        birthdayInput.focus();
+    function toggleSajuInput() {
+      sajuPanel.classList.toggle('open');
+      if (sajuPanel.classList.contains('open')) {
+        sajuDateInput.focus();
       }
     }
 
-    function recommendBirthday() {
-      if (!birthdayInput.value) {
+    function recommendSaju() {
+      if (!sajuDateInput.value) {
         modeLabel.textContent = '생년월일을 입력해주세요';
         return;
       }
 
-      const selected = getBirthdayNumbers(birthdayInput.value);
-      const [year, month, day] = birthdayInput.value.split('-');
-      modeLabel.textContent = `${year}년 ${month}월 ${day}일 기준 개인 번호입니다.`;
-      animateRecommendation(selected, 'birthday', {
+      const [yearText, monthText] = sajuDateInput.value.split('-');
+      const year = Number(yearText);
+      const month = Number(monthText);
+      const yearStem = heavenlyStems[year % 10];
+      const yearBranch = earthlyBranches[((year - 4) % 12 + 12) % 12];
+      const monthBranch = monthBranches[month];
+      const timeBranch = timeBranches[sajuTimeSelect.value];
+      const selected = getSajuNumbers(yearStem, yearBranch, monthBranch, timeBranch);
+      const resultText = `년주: ${yearStem.hanja}(${yearStem.element}) · 월지: ${monthBranch.hanja}(${monthBranch.element}) · 시지: ${timeBranch.hanja}(${timeBranch.element})`;
+
+      modeLabel.textContent = '사주 오행 흐름으로 뽑은 번호입니다.';
+      animateRecommendation(selected, 'saju', {
         showMetrics: false,
         onComplete: () => {
           renderPrizeHistory(selected);
-          renderHistoricalLabel(`${year}년 ${month}월 ${day}일 기준 개인 번호`);
+          renderHistoricalLabel(resultText);
         },
       });
     }
@@ -900,8 +1003,8 @@
         state.stats = calculateStats(state.rounds);
 
         const latestDraw = state.rounds.at(-1)?.drwNo;
-        summary.textContent = `총 ${state.rounds.length}회차 데이터 기준`;
-        statusBox.textContent = `최신 ${latestDraw}회차까지 반영했습니다.`;
+        summary.textContent = '로또도 사는 놈이 된다!';
+        statusBox.textContent = `총 ${state.rounds.length}회차 데이터 기준 · 최신 ${latestDraw}회차까지 반영했습니다.`;
         renderChart(state.stats);
         frequencyButton.disabled = false;
         overdueButton.disabled = false;
@@ -915,13 +1018,21 @@
     historyFirstButton.addEventListener('click', recommendHistoricalFirstPrize);
     historySecondButton.addEventListener('click', recommendHistoricalSecondPrize);
     fortuneButton.addEventListener('click', recommendFortune);
-    birthdayButton.addEventListener('click', toggleBirthdayInput);
-    birthdayConfirmButton.addEventListener('click', recommendBirthday);
+    sajuButton.addEventListener('click', toggleSajuInput);
+    sajuConfirmButton.addEventListener('click', recommendSaju);
 
     loadData();
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
 
 
 
