@@ -108,8 +108,8 @@
 
     .actions {
       display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
+      flex-wrap: nowrap;
+      gap: 8px;
       margin-top: 20px;
     }
 
@@ -120,10 +120,11 @@
       padding: 12px 24px;
       background: #0066cc;
       color: #ffffff;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
-      flex: 1;
-      width: 100%;
+      flex: 1 1 0;
+      min-width: 0;
+      width: auto;
       cursor: pointer;
       transition: transform 120ms ease, opacity 120ms ease;
     }
@@ -141,11 +142,6 @@
       outline-offset: 3px;
     }
 
-    .button:disabled {
-      cursor: not-allowed;
-      opacity: 0.5;
-      transform: none;
-    }
 
     #frequency-button {
       background: #0066cc;
@@ -396,13 +392,6 @@
         font-size: 30px;
       }
 
-      .actions {
-        display: grid;
-      }
-
-      .button {
-        width: 100%;
-      }
 
       .balls {
         grid-template-columns: repeat(2, minmax(88px, 1fr));
@@ -438,10 +427,8 @@
         <div class="actions">
           <button id="frequency-button" class="button" type="button" disabled>빈도 기반 추천</button>
           <button id="overdue-button" class="button" type="button" disabled>비출현 기반 추천</button>
-        </div>
-        <div class="actions">
-          <button id="history-first-button" class="button" type="button" disabled>역대 1등 번호</button>
-          <button id="history-second-button" class="button" type="button" disabled>역대 2등 번호</button>
+          <button id="history-first-button" class="button" type="button">역대 1등 번호</button>
+          <button id="history-second-button" class="button" type="button">역대 2등 번호</button>
         </div>
       </section>
 
@@ -550,8 +537,6 @@
     function setButtonsDisabled(disabled) {
       frequencyButton.disabled = disabled;
       overdueButton.disabled = disabled;
-      historyFirstButton.disabled = disabled;
-      historySecondButton.disabled = disabled;
     }
 
     function randomLottoNumber() {
@@ -769,6 +754,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
